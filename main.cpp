@@ -1,5 +1,5 @@
-#include "service.hpp"
-#include "installer.hpp"
+#include "service/service.hpp"
+#include "service/installer.hpp"
 #include <iostream>
 #include <cstdio>
 #include <windows.h>
@@ -7,8 +7,63 @@
 // service name
 #define serviceName L"NbuChecker"
 
+// Helper function to convert wstr to str
+std::string wstring_to_utf8(const std::wstring& wstr) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+    return conv.to_bytes(wstr);
+}
+
+// Function to get the directory path of the current executable and append a specific file name
+std::string getExecutableDir() {
+    wchar_t servicePath[MAX_PATH] = { 0 };
+    if (GetModuleFileName(NULL, servicePath, MAX_PATH)) {
+        std::wstring path(servicePath);
+
+        // Find the last backslash to isolate the directory
+        size_t lastBackslashIndex = path.find_last_of(L'\\');
+        if (lastBackslashIndex != std::wstring::npos) {
+            // Keep only the directory path
+            std::wstring directoryPath = path.substr(0, lastBackslashIndex);
+            // Convert the directory path with the appended file name to UTF-8
+            return wstring_to_utf8(directoryPath);
+        }
+        else {
+            throw std::runtime_error("Failed to isolate the directory path from the executable path.");
+        }
+    }
+    else {
+        throw std::runtime_error("GetModuleFileName failed to retrieve the path.");
+    }
+}
 
 int main(int argc, char* argv[]) {
+    bool loaded = g_Config.loadFromFile("config.json");
+    
+    if (!loaded) {
+        std::cout << "Writing a new default config file" << std::endl;
+        nlohmann::json j;
+        j["debug"] = true;
+        j["interval"] = 20000;
+        j["dataFormat"] = "JSON";
+        j["dataFilePath"] = getExecutableDir() + "\\data.json";
+
+        std::ofstream cfg("config.json");
+        if (cfg.is_open()) {
+            cfg << j.dump(4);
+        }
+        else {
+            std::cout << "Can't open config.json, exiting" << std::endl;
+            return 1;
+        }
+        std::cout << "New config has been written, please run the executable again" << std::endl;
+        return 0;
+    }
+
+    if (!g_Config.isValid()) {
+        std::cout << "The config is invalid, exiting" << std::endl;
+        return 1;
+    }
+
     if (argc > 1) {
         wchar_t servicePath[MAX_PATH] = { 0 };
         if (GetModuleFileName(NULL, servicePath, MAX_PATH) > 0) {
@@ -46,16 +101,13 @@ int main(int argc, char* argv[]) {
     }
     else {
         if (IsInstalled(serviceName)) {
-            std::cout << "Service is installed. Run this executable again with --uninstall to uninstall the service" << std::endl;
+            std::cout << "Run this executable again with --uninstall to uninstall the service" << std::endl;
         } 
         else {
-            std::cout << "Service is not installed. Run this executable again with --install to install the service" << std::endl;
+            std::cout << "Run this executable again with --install to install the service" << std::endl;
         }
         std::cout << "Press any key to exit" << std::endl;
         std::cin.get();
-        return 0;
     }
-
-
     return 0;
 }

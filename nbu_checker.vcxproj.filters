@@ -4,21 +4,35 @@
     <Filter Include="service">
       <UniqueIdentifier>{0f0f5439-824c-445a-8b3e-13d3f745df2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{d644382c-95fa-453b-b6c0-4c6b7352b98b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="service.cpp">
+    <ClCompile Include="service\installer.cpp">
       <Filter>service</Filter>
     </ClCompile>
-    <ClCompile Include="installer.cpp">
+    <ClCompile Include="service\service.cpp">
       <Filter>service</Filter>
     </ClCompile>
+    <ClCompile Include="config.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="service.hpp">
+    <ClInclude Include="service\installer.hpp">
       <Filter>service</Filter>
     </ClInclude>
-    <ClInclude Include="installer.hpp">
+    <ClInclude Include="service\service.hpp">
+      <Filter>service</Filter>
+    </ClInclude>
+    <ClInclude Include="external\httplib.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="external\json.hpp">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="config.hpp" />
+    <ClInclude Include="service\logger.hpp">
       <Filter>service</Filter>
     </ClInclude>
   </ItemGroup>

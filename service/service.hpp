@@ -1,6 +1,7 @@
 // service.hpp
 #pragma once
-
+#include "logger.hpp"
+#include "config.hpp"
 #include <windows.h>
 
 class CurrencyService {
@@ -9,6 +10,9 @@ public:
     static void WINAPI ServiceCtrlHandler(DWORD dwControl);
 
 private:
+    static bool m_Paused;
+    static bool m_Running;
+
     static SERVICE_STATUS          g_ServiceStatus;
     static SERVICE_STATUS_HANDLE   g_StatusHandle;
     static void Start(DWORD dwArgc, LPWSTR* pszArgv);

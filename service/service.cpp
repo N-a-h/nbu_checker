@@ -1,16 +1,25 @@
 // service.cpp
 #include "service.hpp"
+
 #include <iostream>
 
 SERVICE_STATUS        CurrencyService::g_ServiceStatus = { 0 };
 SERVICE_STATUS_HANDLE CurrencyService::g_StatusHandle = NULL;
+bool                  CurrencyService::m_Paused = false;
+bool                  CurrencyService::m_Running = true;
 
 void CurrencyService::Start(DWORD dwArgc, LPWSTR* pszArgv) {
     g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
     g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
     SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 
-    // Here would be your service's actual logic, e.g., a loop, thread, etc.
+    while (m_Running) {
+        g_Config.Update();
+        if (m_Paused) {
+            Sleep(g_Config.interval);
+            continue;
+        }
+    }
 }
 
 void CurrencyService::Stop() {
