@@ -19,7 +19,7 @@ void CurrencyService::Stop() {
 }
 
 void WINAPI CurrencyService::ServiceMain(DWORD dwArgc, LPWSTR* lpszArgv) {
-    g_StatusHandle = RegisterServiceCtrlHandler(L"SampleService", ServiceCtrlHandler);
+    g_StatusHandle = RegisterServiceCtrlHandler(L"CurrencyService", ServiceCtrlHandler);
     if (g_StatusHandle == NULL) {
         return;
     }

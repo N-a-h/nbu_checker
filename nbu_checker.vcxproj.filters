@@ -10,9 +10,15 @@
     <ClCompile Include="service.cpp">
       <Filter>service</Filter>
     </ClCompile>
+    <ClCompile Include="installer.cpp">
+      <Filter>service</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="service.hpp">
+      <Filter>service</Filter>
+    </ClInclude>
+    <ClInclude Include="installer.hpp">
       <Filter>service</Filter>
     </ClInclude>
   </ItemGroup>
