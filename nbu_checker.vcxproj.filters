@@ -13,7 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="service\installer.cpp">
+    <ClCompile Include="service\manager.cpp">
       <Filter>service</Filter>
     </ClCompile>
     <ClCompile Include="service\service.cpp">
@@ -31,7 +31,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="service\installer.hpp">
+    <ClInclude Include="service\manager.hpp">
       <Filter>service</Filter>
     </ClInclude>
     <ClInclude Include="service\service.hpp">

@@ -1,4 +1,4 @@
-#include "installer.hpp"
+#include "manager.hpp"
 #include <windows.h>
 #include <winsvc.h>
 
@@ -115,6 +115,42 @@ bool IsInstalled(const wchar_t* serviceName) {
     }
 
     std::wcout << L"Service is already installed.\n";
+    CloseServiceHandle(schService);
+    CloseServiceHandle(schSCManager);
+    return true;
+}
+
+
+/// <summary>
+/// Sends a custom command to a Windows service.
+/// </summary>
+/// <param name="serviceName">The name of the service to which the command will be sent.</param>
+/// <param name="serviceCommand">The custom command identifier, must be between 128 and 255.</param>
+/// <returns>true if the command was successfully sent, false otherwise.</returns>
+bool SendCommand(const wchar_t* serviceName, DWORD serviceCommand) {
+    SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    if (schSCManager == NULL) {
+        std::wcerr << L"OpenSCManager failed with error: " << GetLastError() << std::endl;
+        return false;
+    }
+
+    SC_HANDLE schService = OpenService(schSCManager, serviceName, SERVICE_USER_DEFINED_CONTROL);
+    if (schService == NULL) {
+        std::wcerr << L"OpenService failed with error: " << GetLastError() << std::endl;
+        CloseServiceHandle(schSCManager);
+        return false;
+    }
+
+    SERVICE_STATUS_PROCESS ssStatus;
+    DWORD dwBytesNeeded;
+    if (!ControlService(schService, serviceCommand, (LPSERVICE_STATUS)&ssStatus)) {
+        std::wcerr << L"ControlService failed with error: " << GetLastError() << std::endl;
+        CloseServiceHandle(schService);
+        CloseServiceHandle(schSCManager);
+        return false;
+    }
+
+    std::wcout << L"Command sent successfully to " << serviceName << std::endl;
     CloseServiceHandle(schService);
     CloseServiceHandle(schSCManager);
     return true;

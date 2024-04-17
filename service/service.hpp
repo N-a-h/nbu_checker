@@ -1,8 +1,11 @@
 // service.hpp
 #pragma once
- 
+
+
 #include "config.hpp"
 #include "logger.hpp"
+
+#define SERVICE_CONTROL_UPDATE 128
 
 class CurrencyService {
 public:

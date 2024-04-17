@@ -134,6 +134,10 @@ void WINAPI CurrencyService::ServiceMain(DWORD dwArgc, LPWSTR* lpszArgv) {
 /// <returns></returns>
 void WINAPI CurrencyService::ServiceCtrlHandler(DWORD dwControl) {
     switch (dwControl) {
+    case SERVICE_CONTROL_UPDATE:
+        g_Config.Update();
+        break;
+
     case SERVICE_CONTROL_PAUSE:
         m_Paused = true;
         g_ServiceStatus.dwCurrentState = SERVICE_PAUSED;

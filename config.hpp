@@ -12,6 +12,9 @@
 #include "utils.hpp"
 
 
+// service name
+constexpr auto serviceName = L"NbuChecker";
+
 using json = nlohmann::json;
 
 /// <summary>

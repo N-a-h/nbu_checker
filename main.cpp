@@ -3,15 +3,14 @@
 
 
 #include "service/service.hpp"
-#include "service/installer.hpp"
+#include "service/manager.hpp"
 
-// service name
-#define serviceName L"NbuChecker"
+
 
 int main(int argc, char* argv[]) {
     auto configPath = getExecutableDir() + "\\config.json";
     
-    // failed to save config
+    // failed to load config
     if (!g_Config.loadFromFile(configPath)) {
         g_Config.writeDefaultConfig(configPath);
         if(!g_Config.Update()) {
@@ -26,6 +25,7 @@ int main(int argc, char* argv[]) {
     }
 
 
+    // console commands
     if (argc > 1) {
         wchar_t servicePath[MAX_PATH] = { 0 };
         if (GetModuleFileName(NULL, servicePath, MAX_PATH) > 0) {
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    //running as a service since we don't have a console window
+    // If no console window attached - we are a service, otherwise proceed in console mode
     if (GetConsoleWindow() == NULL) {
         SERVICE_TABLE_ENTRY ServiceTable[] = {
             {(LPWSTR)L"CurrencyService", CurrencyService::ServiceMain},
