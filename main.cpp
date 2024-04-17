@@ -42,6 +42,9 @@ int main(int argc, char* argv[]) {
         }
         else if (arg == "--uninstall") {
             UninstallService(serviceName);
+        } 
+        else if (arg == "--update") {
+            SendCommand(serviceName, SERVICE_CONTROL_UPDATE);
         }
         else {
             std::cerr << "Invalid argument. Use --install or --uninstall.\n";
@@ -62,14 +65,50 @@ int main(int argc, char* argv[]) {
         }
     }
     else {
-        if (IsInstalled(serviceName)) {
-            std::cout << "Run this executable again with --uninstall to uninstall the service" << std::endl;
-        } 
-        else {
-            std::cout << "Run this executable again with --install to install the service" << std::endl;
+        std::cout << "Choose an option:" << std::endl;
+        std::cout << "1. Install service" << std::endl;
+        std::cout << "2. Uninstall service" << std::endl;
+        std::cout << "3. Update config" << std::endl;
+        std::cout << "4. Exit" << std::endl;
+
+        int choice;
+        std::cin >> choice;
+        std::cin.ignore();  // To consume the newline character after the number
+
+        switch (choice) {
+        case 1:
+            wchar_t servicePath[MAX_PATH] = { 0 };
+            GetModuleFileName(NULL, servicePath, MAX_PATH);
+
+            if (!IsInstalled(serviceName))
+                InstallService(serviceName, servicePath);
+            else
+                std::cout << "Service is already installed." << std::endl;
+            break;
+        case 2:
+            if (IsInstalled(serviceName))
+                UninstallService(serviceName);
+            else
+                std::cout << "Service is not installed." << std::endl;
+            break;
+        case 3:
+            if (IsInstalled(serviceName)) 
+                SendCommand(serviceName, SERVICE_CONTROL_UPDATE);
+            else 
+                std::cout << "Service is not installed." << std::endl;
+            break;
+        case 4:
+            std::cout << "Exiting..." << std::endl;
+            return 0;
+        default:
+            std::cout << "Invalid option. Please run the program again and select a valid option." << std::endl;
+            break;
         }
-        std::cout << "Press any key to exit" << std::endl;
+
+        std::cout << "Press any key to exit." << std::endl;
         std::cin.get();
+
+        return 0;
     }
     return 0;
 }
