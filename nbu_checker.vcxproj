@@ -119,6 +119,11 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>libssl.lib;libcrypto.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)external\openssl\bin\libcrypto-3-x64.dll" "$(TargetDir)libcrypto-3-x64.dll*" /Y /D
+xcopy "$(ProjectDir)external\openssl\bin\libssl-3-x64.dll" "$(TargetDir)libssl-3-x64.dll*" /Y /D
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -137,6 +142,9 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>libssl.lib;libcrypto.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)external\openssl\bin\libcrypto-3-x64.dll" "$(TargetDir)libcrypto-3-x64.dll*" /Y /D</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="config.cpp" />
