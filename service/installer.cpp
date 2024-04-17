@@ -1,5 +1,6 @@
 #include "installer.hpp"
-
+#include <windows.h>
+#include <winsvc.h>
 
 void InstallService(const wchar_t* serviceName, wchar_t* servicePath) {
     SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);

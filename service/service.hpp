@@ -1,8 +1,8 @@
 // service.hpp
 #pragma once
-#include "logger.hpp"
+ 
 #include "config.hpp"
-#include <windows.h>
+#include "logger.hpp"
 
 class CurrencyService {
 public:

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
-#include <windows.h>
 #include <string>
+#include <windows.h>
+
 
 class Logger {
 private:
     bool debug;
-    const wchar_t* serviceName;
 
     void writeToLogFile(const std::wstring& message) {
         std::wofstream logFile("log.txt", std::ios_base::app);
@@ -20,7 +20,7 @@ private:
     }
 
     void writeToEventViewer(const std::wstring& message, WORD eventType) {
-        HANDLE hEventSource = RegisterEventSource(NULL, serviceName);
+        HANDLE hEventSource = RegisterEventSource(NULL, L"NbuChecker"); //screwed up by putting this definition into main.cpp
         if (hEventSource) {
             LPCWSTR lpszStrings[1];
             lpszStrings[0] = message.c_str();
@@ -64,3 +64,5 @@ public:
         }
     }
 };
+
+extern Logger g_Logger;

@@ -3,8 +3,13 @@
 
 #include <iostream>
 #include <fstream>
-#include "external/json.hpp"
 #include <codecvt>
+
+#define WIN32_LEAN_AND_MEAN
+#include "nbu_api/api.hpp"
+
+#include "external/json.hpp"
+#include "utils.hpp"
 
 
 using json = nlohmann::json;
@@ -13,12 +18,37 @@ using json = nlohmann::json;
 
 class Config {
 public:
-    bool debug{};
+    bool debug{ true };
     int interval{};
     std::string dataFormat{};
     std::string dataFilePath{};
 
-    Config() {}
+    Config() {
+        m_configPath = getExecutableDir() + "config.json";
+    }
+
+    // Writes default configuration values to a JSON file
+    bool writeDefaultConfig(std::string configPath) {
+        std::cout << "Writing a new default config file" << std::endl;
+        json j;
+        j["debug"] = true;
+        j["interval"] = 20000;
+        j["dataFormat"] = "JSON";
+        j["dataFilePath"] = getExecutableDir() + "\\data.json";
+
+        std::ofstream cfg(configPath);
+        if (!cfg.is_open()) {
+            std::cerr << "Can't open " << m_configPath << std::endl;
+            return false;
+        }
+
+        cfg << j.dump(4);
+        cfg.close();
+
+        m_configPath = configPath;
+        return true;
+    }
+
 
     bool isValid() {
         // Check if the interval isnt too low 
@@ -51,6 +81,8 @@ public:
             std::cerr << "Error: Could not open file " << filename << std::endl;
             return false;
         }
+
+        m_configPath = filename;
 
         try {
             json j;
