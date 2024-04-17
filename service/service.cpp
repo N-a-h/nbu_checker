@@ -45,6 +45,10 @@ void CurrencyService::processExchangeData() {
     if (g_Config.dataFormat == "CSV")
         data = jsonToCSV(data);
 
+    //prettify json because the data nbu returns is ugly
+    if (g_Config.dataFormat == "JSON")
+        data = prettifyJSON(data);
+
     if (!writeDataToFile(data)) {
         g_Logger.Error(L"Couldn't write to file.");
     }
@@ -102,7 +106,7 @@ bool CurrencyService::writeDataToFile(const std::string& data) {
 /// </summary>
 void CurrencyService::Stop() {
     m_Running = false;
-
+    g_Logger.Warn(L"Stopping the service");
     g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
     SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 }
@@ -135,17 +139,30 @@ void WINAPI CurrencyService::ServiceMain(DWORD dwArgc, LPWSTR* lpszArgv) {
 void WINAPI CurrencyService::ServiceCtrlHandler(DWORD dwControl) {
     switch (dwControl) {
     case SERVICE_CONTROL_UPDATE:
-        g_Config.Update();
+        if (g_Config.Update()) {
+            if (g_Config.isValid())
+                g_Logger.Info(L"Service config updated successfully");
+            else {
+                g_Logger.Warn(L"Config is invalid, stopping the service\nPlease rerun the manager executable for hints on fixing it");
+                Stop();
+            }
+        }
+        else {
+            g_Logger.Error(L"Failed to open the config file. Stopping the service");
+            Stop();
+        }
         break;
 
     case SERVICE_CONTROL_PAUSE:
         m_Paused = true;
+        g_Logger.Info(L"Service paused");
         g_ServiceStatus.dwCurrentState = SERVICE_PAUSED;
         SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
         break;
 
     case SERVICE_CONTROL_CONTINUE:
         m_Paused = false;
+        g_Logger.Info(L"Service unpaused");
         g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
         SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
         break;

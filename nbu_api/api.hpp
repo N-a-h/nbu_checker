@@ -50,6 +50,21 @@ static bool validateJSON(const std::string& jsonData) {
     }
 }
 
+/// <summary>
+/// Prettifies the JSON to make it more human-readable
+/// </summary>
+/// <param name="jsonData">json data to parse</param>
+/// <param name="indent">indentation spaces</param>
+/// <returns>prettified json on success, error message on fail</returns>
+static std::string prettifyJSON(const std::string& jsonData, int indent = 4) {
+    try {
+        auto j = json::parse(jsonData);
+        return j.dump(indent);
+    }
+    catch (const json::parse_error& e) {
+        return "JSON parsing error: " + std::string(e.what());
+    }
+}
 
 /// <summary>
 /// Converts json-formatted data to CSV
