@@ -1,15 +1,21 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <windows.h>
+#include "config.hpp"
 
-
+/// <summary>
+/// Used for easier logging(if debug = true the logs will be written to a file rather than event viewer)
+/// </summary>
 class Logger {
 private:
     bool debug;
 
+    /// <summary>
+    /// Writes to the log file
+    /// </summary>
+    /// <param name="message">msg to write</param>
     void writeToLogFile(const std::wstring& message) {
-        std::wofstream logFile("log.txt", std::ios_base::app);
+        std::wofstream logFile(getExecutableDir() + "\\log.txt", std::ios_base::app);
         if (logFile.is_open()) {
             logFile << message << std::endl;
             logFile.close();
@@ -19,6 +25,11 @@ private:
         }
     }
 
+    /// <summary>
+    /// Writes to the event log
+    /// </summary>
+    /// <param name="message">msg to write</param>
+    /// <param name="eventType">event type</param>
     void writeToEventViewer(const std::wstring& message, WORD eventType) {
         HANDLE hEventSource = RegisterEventSource(NULL, L"NbuChecker"); //screwed up by putting this definition into main.cpp
         if (hEventSource) {

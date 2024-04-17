@@ -5,13 +5,20 @@
 #include <windows.h>
 
 
-// Helper function to convert wstr to str
+/// <summary>
+/// Converts std::wstring to std::string
+/// </summary>
+/// <param name="wstr">wstring to convert</param>
+/// <returns>converted std::string</returns>
 static std::string wstring_to_utf8(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
     return conv.to_bytes(wstr);
 }
 
-// Function to get the directory path of the current executable
+/// <summary>
+/// Gets the executable's path
+/// </summary>
+/// <returns>path</returns>
 static std::string getExecutableDir() {
     wchar_t servicePath[MAX_PATH] = { 0 };
     if (GetModuleFileName(NULL, servicePath, MAX_PATH)) {

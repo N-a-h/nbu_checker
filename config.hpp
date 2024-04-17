@@ -14,7 +14,9 @@
 
 using json = nlohmann::json;
 
-
+/// <summary>
+/// Stores and manages config info
+/// </summary>
 
 class Config {
 public:
@@ -27,7 +29,12 @@ public:
         m_configPath = getExecutableDir() + "config.json";
     }
 
-    // Writes default configuration values to a JSON file
+    
+    /// <summary>
+    /// Writes default configuration values to a JSON file
+    /// </summary>
+    /// <param name="configPath">file path to store the config in</param>
+    /// <returns>true on success</returns>
     bool writeDefaultConfig(std::string configPath) {
         std::cout << "Writing a new default config file" << std::endl;
         json j;
@@ -49,7 +56,10 @@ public:
         return true;
     }
 
-
+    /// <summary>
+    /// Checks whether the config settings are valid
+    /// </summary>
+    /// <returns>true if valid</returns>
     bool isValid() {
         // Check if the interval isnt too low 
         if (interval < 5000) {
@@ -74,7 +84,11 @@ public:
         return true;
     }
 
-    // Function to load config from a JSON file
+    /// <summary>
+    /// Function to load config from a JSON file
+    /// </summary>
+    /// <param name="filename">path to the config</param>
+    /// <returns>true on success</returns>
     bool loadFromFile(const std::string& filename) {
         std::ifstream file(filename);
         if (!file.is_open()) {
@@ -106,6 +120,10 @@ public:
         }
     }
 
+    /// <summary>
+    /// Updates the config from last config file path
+    /// </summary>
+    /// <returns></returns>
     bool Update() {
         return loadFromFile(m_configPath);
     }

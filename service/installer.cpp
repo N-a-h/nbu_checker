@@ -2,6 +2,11 @@
 #include <windows.h>
 #include <winsvc.h>
 
+/// <summary>
+/// Installs the service
+/// </summary>
+/// <param name="serviceName">service name</param>
+/// <param name="servicePath">path to the service executable</param>
 void InstallService(const wchar_t* serviceName, wchar_t* servicePath) {
     SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
     if (schSCManager == NULL) {
@@ -35,6 +40,10 @@ void InstallService(const wchar_t* serviceName, wchar_t* servicePath) {
     CloseServiceHandle(schSCManager);
 }
 
+/// <summary>
+/// Uninstalls the service
+/// </summary>
+/// <param name="serviceName"></param>
 void UninstallService(const wchar_t* serviceName) {
     SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (schSCManager == NULL) {
@@ -79,6 +88,12 @@ void UninstallService(const wchar_t* serviceName) {
     CloseServiceHandle(schSCManager);
 }
 
+
+/// <summary>
+/// Checks whether the service is already installed
+/// </summary>
+/// <param name="serviceName">service name</param>
+/// <returns>true if installed</returns>
 bool IsInstalled(const wchar_t* serviceName) {
     SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (schSCManager == NULL) {

@@ -7,64 +7,99 @@ SERVICE_STATUS_HANDLE CurrencyService::g_StatusHandle = NULL;
 bool                  CurrencyService::m_Paused = false;
 bool                  CurrencyService::m_Running = true;
 
+
+/// <summary>
+/// Main service loop
+/// </summary>
 void CurrencyService::Start(DWORD dwArgc, LPWSTR* pszArgv) {
     g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
     g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
     SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 
-    // main loop
     while (m_Running) {
+        if (!m_Paused) {
+            CurrencyService::processExchangeData();
+        }
         Sleep(g_Config.interval);
+    }
+}
+/// <summary>
+/// Fetches, processes and writes data
+/// </summary>
+void CurrencyService::processExchangeData() {
+    std::string url = "/NBUStatService/v1/statdirectory/exchange";
+    url += (g_Config.dataFormat != "XML") ? "?json" : "";
 
-        if (m_Paused) {
-            continue;
-        }
+    std::string data = getApiData(url);
+    if (data.empty()) {
+        g_Logger.Error(L"Failed HTTP request.");
+        return;
+    }
 
-        std::string url = "/NBUStatService/v1/statdirectory/exchange";
+    if (!CurrencyService::validateDataFormat(data)) {
+        g_Logger.Error(L"Malformed data format.");
+        return;
+    }
 
-        if (g_Config.dataFormat != "XML")
-            url += "?json";
+    //convert json to csv before writing data
+    if (g_Config.dataFormat == "CSV")
+        data = jsonToCSV(data);
 
-        auto data = getApiData(url);
-        
-        if (data == "") {
-            g_Logger.Error(L"Something went wrong with the HTTP request.");
-            continue;
-        }
-
-        std::string result;
-
-        if (g_Config.dataFormat == "JSON" || g_Config.dataFormat == "CSV") {
-            if (!validateJSON(data)) {
-                g_Logger.Error(L"Malformed JSON");
-                continue;
-            }
-            if (g_Config.dataFormat == "CSV")
-                result = jsonToCSV(data);
-            else
-                result = data;
-        }
-        else { //xml
-            if (!validateXML(data)) {
-                g_Logger.Error(L"Malformed XML");
-                continue;
-            }
-            result = data;
-        }
-
-        std::ofstream out(g_Config.dataFilePath, std::ios::out | std::ios::trunc);
-
-        if (out.is_open()) {
-            out << result;
-            g_Logger.Info(L"Updated data.json");
-            out.close();
-        }
-        else {
-            g_Logger.Error(L"Couldn't write to destination");
-        }
+    if (!writeDataToFile(data)) {
+        g_Logger.Error(L"Couldn't write to file.");
     }
 }
 
+/// <summary>Validates fetched data depending on g_Config.</summary>
+/// <param name="data">Data to be validated</param>
+/// <returns>True on success, false on failure</returns>
+bool CurrencyService::validateDataFormat(const std::string& data) {
+    if (g_Config.dataFormat == "JSON" || g_Config.dataFormat == "CSV") {
+        if (!validateJSON(data)) {
+            g_Logger.Error(L"Malformed JSON data.");
+            return false;
+        }
+    }
+    else if (g_Config.dataFormat == "XML") {
+        if (!validateXML(data)) {
+            g_Logger.Error(L"Malformed XML data.");
+            return false;
+        }
+    }
+    else {
+        g_Logger.Error(L"Unsupported data format specified.");
+        return false;
+    }
+    return true;
+}
+
+
+
+/// <summary>Writes data to a file</summary>
+/// <param name="data">Data to be written</param>
+/// <returns>True on success, false on failure</returns> 
+bool CurrencyService::writeDataToFile(const std::string& data) {
+    std::ofstream out(g_Config.dataFilePath, std::ios::out | std::ios::trunc);
+    if (!out.is_open()) {
+        g_Logger.Error(L"Failed to open the output file.");
+        return false;
+    }
+
+    out << data;
+    if (out.fail()) {
+        g_Logger.Error(L"Failed to write data to the output file.");
+        out.close();
+        return false;
+    }
+
+    out.close();
+    g_Logger.Info(L"Data successfully written to file.");
+    return true;
+}
+
+/// <summary>
+/// Stops the service
+/// </summary>
 void CurrencyService::Stop() {
     m_Running = false;
 
@@ -72,6 +107,12 @@ void CurrencyService::Stop() {
     SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 }
 
+/// <summary>
+/// Service entry point
+/// </summary>
+/// <param name="dwArgc"></param>
+/// <param name="lpszArgv"></param>
+/// <returns></returns>
 void WINAPI CurrencyService::ServiceMain(DWORD dwArgc, LPWSTR* lpszArgv) {
     g_StatusHandle = RegisterServiceCtrlHandler(L"CurrencyService", ServiceCtrlHandler);
     if (g_StatusHandle == NULL) {
@@ -86,6 +127,11 @@ void WINAPI CurrencyService::ServiceMain(DWORD dwArgc, LPWSTR* lpszArgv) {
     Start(dwArgc, lpszArgv);
 }
 
+/// <summary>
+/// Service command handler
+/// </summary>
+/// <param name="dwControl">command</param>
+/// <returns></returns>
 void WINAPI CurrencyService::ServiceCtrlHandler(DWORD dwControl) {
     switch (dwControl) {
     case SERVICE_CONTROL_PAUSE:

@@ -1,12 +1,18 @@
 
 #include <iostream>
 #include <sstream>
+
 #define WIN32_LEAN_AND_MEAN
 #include "httplib.h"
+
 #include "tinyxml2.h"
 #include "json.hpp"
 
-
+/// <summary>
+/// Requests data from NBU api
+/// </summary>
+/// <param name="url">api endpoint</param>
+/// <returns>body on success, empty string on fail </returns>
 static std::string getApiData(const std::string& url) {
     httplib::SSLClient cli("bank.gov.ua");
     cli.set_read_timeout(10, 0);
@@ -19,6 +25,11 @@ static std::string getApiData(const std::string& url) {
 
 using json = nlohmann::json;
 
+/// <summary>
+/// Validates requested JSON data
+/// </summary>
+/// <param name="jsonData">data to validate</param>
+/// <returns>true on success</returns>
 static bool validateJSON(const std::string& jsonData) {
     try {
         auto j = json::parse(jsonData);
@@ -39,6 +50,12 @@ static bool validateJSON(const std::string& jsonData) {
     }
 }
 
+
+/// <summary>
+/// Converts json-formatted data to CSV
+/// </summary>
+/// <param name="jsonData">json to convert</param>
+/// <returns>processed csv or nothing on bad json</returns>
 static std::string jsonToCSV(const std::string& jsonData) {
     auto j = json::parse(jsonData);
     std::stringstream csv;
@@ -56,7 +73,11 @@ static std::string jsonToCSV(const std::string& jsonData) {
 }
 
 
-
+/// <summary>
+/// Validates fetched XML document
+/// </summary>
+/// <param name="xmlData">data to validate</param>
+/// <returns>true on success</returns>
 
 static bool validateXML(const std::string& xmlData) {
     tinyxml2::XMLDocument doc;
