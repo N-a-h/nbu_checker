@@ -105,9 +105,9 @@ public:
             json j;
             file >> j;
             debug = j.value("debug", true); 
-            interval = j.value("interval", 0); // Use default value if not set
-            dataFormat = j.value("dataFormat", "JSON"); // Default to JSON if not set
-            dataFilePath = j.value("dataFilePath", ""); // Default to an empty string if not set
+            interval = j.value("interval", 20000); 
+            dataFormat = j.value("dataFormat", "JSON");
+            dataFilePath = j.value("dataFilePath", "");
 
             // Validate the loaded configuration
             if (!isValid()) {
