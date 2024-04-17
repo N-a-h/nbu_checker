@@ -24,17 +24,17 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    wchar_t servicePath[MAX_PATH] = { 0 };
+    if (GetModuleFileName(NULL, servicePath, MAX_PATH) > 0) {
+        std::wcout << L"The path to the current executable is: " << servicePath << std::endl;
+    }
+    else {
+        std::wcerr << L"Couldn't get executable's path, exiting" << std::endl;
+        return 1;
+    }
 
     // console commands
     if (argc > 1) {
-        wchar_t servicePath[MAX_PATH] = { 0 };
-        if (GetModuleFileName(NULL, servicePath, MAX_PATH) > 0) {
-            std::wcout << L"The path to the current executable is: " << servicePath << std::endl;
-        }
-        else {
-            std::wcerr << L"Failed to get the path. Error: " << GetLastError() << std::endl;
-            return 1;
-        }
 
         std::string arg = argv[1];
         if (arg == "--install") {
@@ -77,18 +77,15 @@ int main(int argc, char* argv[]) {
 
         switch (choice) {
         case 1:
-            wchar_t servicePath[MAX_PATH] = { 0 };
-            GetModuleFileName(NULL, servicePath, MAX_PATH);
-
             if (!IsInstalled(serviceName))
                 InstallService(serviceName, servicePath);
             else
                 std::cout << "Service is already installed." << std::endl;
             break;
         case 2:
-            if (IsInstalled(serviceName))
+            if (IsInstalled(serviceName)) 
                 UninstallService(serviceName);
-            else
+            else 
                 std::cout << "Service is not installed." << std::endl;
             break;
         case 3:

@@ -152,8 +152,8 @@
     <ClInclude Include="external\httplib.h" />
     <ClInclude Include="external\json.hpp" />
     <ClInclude Include="external\tinyxml2.h" />
-    <ClInclude Include="service\manager.hpp" />
     <ClInclude Include="service\logger.hpp" />
+    <ClInclude Include="service\manager.hpp" />
     <ClInclude Include="service\service.hpp" />
     <ClInclude Include="utils.hpp" />
   </ItemGroup>

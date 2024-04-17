@@ -1,6 +1,5 @@
 #include "manager.hpp"
-#include <windows.h>
-#include <winsvc.h>
+
 
 /// <summary>
 /// Installs the service
